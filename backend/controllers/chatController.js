@@ -17,11 +17,12 @@ const sendMessage = async (req, res) => {
     
     // Create a new lead if none exists
     if (!lead) {
+      const newSessionId = sessionId || 'session_' + Date.now();
       lead = new Lead({
         name: 'Lead ' + Math.floor(Math.random() * 1000),
         source: 'website',
         status: 'Cold',
-        sessionId: sessionId || 'session_' + Date.now(),
+        sessionId: newSessionId,
         chatHistory: []
       });
       await lead.save();
@@ -30,8 +31,8 @@ const sendMessage = async (req, res) => {
     // Get existing chat history
     const chatHistory = lead.chatHistory || [];
     
-    // Generate AI response with existing chat history (before adding new user message)
-    const reply = await generateChatResponse(message, lead?.classification?.extractedData || {}, chatHistory);
+    // Generate AI response with session context
+    const reply = await generateChatResponse(message, { sessionId: lead.sessionId }, chatHistory);
 
     // Check if this is a site visit confirmation message
     const isSiteVisitConfirmation = reply.includes("Your site visit is confirmed") || 
@@ -53,10 +54,19 @@ const sendMessage = async (req, res) => {
     lead.chatHistory.push({ sender: 'user', message, timestamp: new Date() });
     lead.chatHistory.push({ sender: 'bot', message: finalReply, timestamp: new Date() });
     
-    // If this is a site visit confirmation, update the lead status to Hot
-    if (isSiteVisitConfirmation) {
-      lead.status = 'Hot';
-    }
+    // Classify lead based on conversation
+    const { classifyLead: classifyLeadFunction } = require('../config/openai');
+    const classification = classifyLeadFunction(lead.chatHistory);
+    lead.status = classification.status;
+    lead.classification = {
+      confidence: classification.confidence,
+      reason: classification.reason,
+      score: classification.score,
+      extractedData: {},
+      nextActions: classification.status === 'Hot' ? ['Call immediately', 'Send properties'] : 
+                   classification.status === 'Cold' ? ['Follow up in 3 days', 'Send brochure'] : 
+                   ['Mark as spam']
+    };
     
     await lead.save();
     
