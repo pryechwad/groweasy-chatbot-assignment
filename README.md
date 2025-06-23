@@ -1,9 +1,14 @@
 # 📱 GrowEasy — AI Chat-Based Agent Assignment
-The agent should be **configurable** to work across different industries, starting with a **real estate** use case.
+
 📱 GrowEasy Chatbot & Lead Management System
 Welcome to the GrowEasy AI Chatbot — a simulated WhatsApp-style conversational agent combined with an intelligent lead management system designed especially for the real estate industry (and easily adaptable to other industries).
+
+The agent should be **configurable** to work across different industries, starting with a **real estate** use case.
+
 Demo video https://drive.google.com/file/d/1pUn6Q59Dzru3dG1Uo5cmlUGZ23g_kus2/view?usp=sharing
+
 🚀 What this project does
+
 ✅ Receive & handle leads automatically
 As soon as a new lead comes in, the chatbot starts a conversation just like a human sales assistant.
 
@@ -52,8 +57,11 @@ Interface: Web-based chat UI (no real WhatsApp API needed)
 
 📄 How to run
 1️⃣ Clone the repo
+
 2️⃣ Install dependencies (npm install)
+
 3️⃣ Start backend server (npm run start)
+
 4️⃣ Open your browser to the Web UI — start chatting with your AI agent!
 
 📢 Note
